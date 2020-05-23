@@ -1,15 +1,16 @@
-import numpy as np
 import gym
 import random
+import numpy as np
+import tqdm
 
 from lib.q_learning import QLeaning
 
-env = gym.make("FrozenLake-v0")
+env = gym.make("FrozenLake8x8-v0")
 
 agent = QLeaning(action_size=env.action_space.n,
                  state_size=env.observation_space.n)
 
-total_episodes = 10000        # Total episodes
+total_episodes = 100000        # Total episodes
 learning_rate = 0.8           # Learning rate
 max_steps = 99                # Max steps per episode
 gamma = 0.95                  # Discounting rate
@@ -18,14 +19,11 @@ gamma = 0.95                  # Discounting rate
 epsilon = 1.0                 # Exploration rate
 max_epsilon = 1.0             # Exploration probability at start
 min_epsilon = 0.01            # Minimum exploration probability
-decay_rate = 0.005            # Exponential decay rate for exploration prob
+decay_rate = 0.0001            # Exponential decay rate for exploration prob
 
-
-# List of rewards
 rewards = []
 
-# 2 For life or until learning is stopped
-for episode in range(total_episodes):
+for episode in tqdm.tqdm(range(total_episodes)):
     # Reset the environment
     state = env.reset()
     step = 0
@@ -59,3 +57,7 @@ for episode in range(total_episodes):
     # Reduce epsilon (because we need less and less exploration)
     epsilon = min_epsilon + (max_epsilon - min_epsilon) * np.exp(-decay_rate * episode)
     rewards.append(total_rewards)
+
+rewards = np.array(rewards)
+
+np.save(open('tmp/rewards.npy', 'wb'), rewards)
